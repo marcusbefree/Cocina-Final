@@ -136,7 +136,7 @@ table.grid{width:100%;min-width:760px;border-collapse:collapse}
 .hrs.over{color:var(--bad)}
 .mini-av{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font:800 12px var(--fd);background:color-mix(in srgb,var(--pc) 22%,transparent);color:var(--pc);flex-shrink:0}
 .cell{width:100%;min-height:64px;border-radius:13px;padding:6px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:color-mix(in srgb,var(--c) 15%,transparent);border:1.5px solid color-mix(in srgb,var(--c) 55%,transparent);transition:transform .12s;position:relative}
-.cell .s{font-weight:800;color:var(--c);font-size:12px;letter-spacing:.06em}
+.cell .s{font-weight:800;color:var(--c);font-size:12px;letter-spacing:.06em;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cell .t{font:500 10.5px var(--fm);color:var(--muted);white-space:nowrap}
 .cell .a{font-size:12px;line-height:1.2}
 .cell .nd{position:absolute;top:3px;right:5px;font-size:10px}
@@ -341,6 +341,13 @@ const DAYS   = ['Jueves','Viernes','Sábado','Domingo','Lunes','Martes','Miérco
 const DAYS_S = ['Jue','Vie','Sáb','Dom','Lun','Mar','Mié'];
 const MONTHS = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 const CUSTOM_COLOR = '#b58cff';
+/* Ausencias de día completo: no cuentan como trabajo ni como descanso */
+const AWAY = {
+  V: { name:'Vacaciones', short:'VAC',  color:'#2bc4a9', emoji:'🌴', sub:'Días de vacaciones' },
+  P: { name:'Permiso',    short:'PERM', color:'#f472b6', emoji:'📄', sub:'Falta justificada' }
+};
+const LABEL_IDEAS = ['Capacitación', 'Inventario', 'Evento', 'Doble turno', 'Medio día'];
+const NOTE_IDEAS = { V: ['Regresa el lunes', 'Vacaciones de ley'], P: ['Cita médica', 'Asunto personal', 'Trámite', 'Incapacidad'] };
 const PALETTE = ['#f2a33a','#4f9cf7','#e86aa6','#4fd1a5','#b58cff','#ff7a59','#e2c044','#5ec8e5','#9bd35a','#f07ad2'];
 const QUICK_STARTS = ['06:00','06:30','07:00','07:30','08:00','08:30','09:00','09:30','10:00','11:00','12:00','13:00'];
 
@@ -437,20 +444,21 @@ function info(e) {
   const none = { kind:'none', name:'Sin asignar', short:'—', color:'var(--faint)', mins:0 };
   if (!e) return none;
   if (e.s === 'D') return { kind:'off', name:'Descanso', short:'DESC', color:'var(--faint)', mins:0, note:e.n || '' };
+  if (AWAY[e.s]) { const a = AWAY[e.s]; return { kind:'away', name:a.name, short:a.short, color:a.color, emoji:a.emoji, mins:0, note:e.n || '' }; }
   let sh;
-  if (e.s === 'C') sh = { name:'Personalizado', short:'PERS', start:e.start, end:e.end, color:CUSTOM_COLOR };
+  if (e.s === 'C') sh = { name:e.label || 'Personalizado', short:e.label ? e.label.toUpperCase() : 'PERS', start:e.start, end:e.end, color:CUSTOM_COLOR };
   else sh = shiftById(e.s);
   if (!sh || !sh.start || !sh.end) return none;
   return { kind:'work', name:sh.name, short:sh.short, start:sh.start, end:sh.end, color:sh.color,
            area:areaById(e.a), note:e.n || '', mins:dur(sh.start, sh.end) };
 }
 function personStats(pid, k = S.week) {
-  let mins = 0, work = 0, off = 0, none = 0;
+  let mins = 0, work = 0, off = 0, none = 0, away = 0;
   for (let d = 0; d < 7; d++) {
     const i = info(getE(pid, d, k));
-    if (i.kind === 'work') { mins += i.mins; work++; } else if (i.kind === 'off') off++; else none++;
+    if (i.kind === 'work') { mins += i.mins; work++; } else if (i.kind === 'off') off++; else if (i.kind === 'away') away++; else none++;
   }
-  return { mins, work, off, none };
+  return { mins, work, off, none, away };
 }
 function weekLabel(k) {
   const s = fromIso(k), e = addDays(s, 6);
@@ -558,7 +566,8 @@ function viewPick() {
   const people = DATA.staff.map(st => {
     const i = info(getE(st.id, ti, tk));
     const txt = i.kind === 'work' ? `Hoy <b>${esc(i.name)}</b> · ${fmt(i.start)}`
-      : i.kind === 'off' ? 'Hoy <b>descansa</b> 😴' : 'Hoy sin asignar';
+      : i.kind === 'off' ? 'Hoy <b>descansa</b> 😴'
+      : i.kind === 'away' ? `Hoy <b>${esc(i.name.toLowerCase())}</b> ${i.emoji}` : 'Hoy sin asignar';
     return `<button class="person" style="--pc:${st.color}" data-act="pick" data-id="${esc(st.id)}">
       <span class="avatar">${esc(initials(st.name))}</span>
       <span><span class="nm">${esc(st.name)}</span><span class="td">${txt}</span></span></button>`;
@@ -612,6 +621,7 @@ function heroCard(pid) {
     else { status = `✅ Turno terminado. ${nextShift(pid, ti)}`; pct = 100; }
     if (i.area) emoji = i.area.icon;
   } else if (i.kind === 'off') { status = `Disfruta tu día. ${nextShift(pid, ti)}`; emoji = '😴'; }
+  else if (i.kind === 'away') { status = `${i.emoji} ${i.kind === 'away' && AWAY.V.name === i.name ? '¡Disfruta tus vacaciones!' : 'Tienes permiso hoy.'} ${nextShift(pid, ti)}`; emoji = i.emoji; }
   else status = 'Tu turno de hoy todavía no está asignado.';
   const dn = dayNote(ti);
   return `<div class="hero" id="hero" style="--c:${i.color}">
@@ -634,7 +644,8 @@ function viewMe() {
     const i = info(getE(st.id, d)), date = addDays(ws, d), n = dayNote(d);
     const body = i.kind === 'work'
       ? `<div class="sh">${esc(i.name)}</div><div class="tm">${fmtS(i.start)} – ${fmtS(i.end)}</div>${i.area ? `<span class="chip" style="--c:${i.area.color}">${i.area.icon} ${esc(i.area.name)}</span>` : ''}`
-      : i.kind === 'off' ? '<div class="sh">😴 Descanso</div>' : '<div class="sh">Sin asignar</div>';
+      : i.kind === 'off' ? '<div class="sh">😴 Descanso</div>'
+      : i.kind === 'away' ? `<div class="sh">${i.emoji} ${esc(i.name)}</div>` : '<div class="sh">Sin asignar</div>';
     return `<div class="dcard ${i.kind} ${d === ti ? 'today' : ''} ${ti >= 0 && d < ti ? 'past' : ''}" style="--c:${i.color}">
       <div class="dn">${d === ti ? 'Hoy' : dn}</div><div class="dd">${date.getDate()}</div>${body}
       ${i.note ? `<div class="dnote">📝 ${esc(i.note)}</div>` : ''}${n ? `<div class="dnote">📣 ${esc(n)}</div>` : ''}</div>`;
@@ -657,7 +668,7 @@ function viewMe() {
     <div class="stats">
       <div class="stat"><div class="v" ${over ? 'style="color:var(--bad)"' : ''}>${fmtHrs(stats.mins)}</div><div class="k">horas esta semana</div></div>
       <div class="stat"><div class="v">${stats.work}</div><div class="k">días de trabajo</div></div>
-      <div class="stat"><div class="v">${stats.off}</div><div class="k">descansos</div></div>
+      <div class="stat"><div class="v">${stats.off + stats.away}</div><div class="k">${stats.away ? `${stats.off} desc. · ${stats.away} vac./perm.` : 'descansos'}</div></div>
     </div>
     <div class="card my-tasks"><h4>🧽 Mis limpiezas profundas</h4>
       ${tasks ? `<div class="muted" style="font-size:13px">Márcalas cuando las termines (se guarda en tu teléfono).</div>${tasks}` : '<div class="empty">No tienes limpiezas asignadas esta semana. 🙌</div>'}
@@ -694,7 +705,7 @@ function warnings() {
     const s = personStats(st.id);
     unassigned += s.none;
     if (s.mins > cfg.maxHours * 60) out.push(`⏱️ <b>${esc(st.name)}</b> tiene ${fmtHrs(s.mins)} h (máximo ${cfg.maxHours} h).`);
-    if (s.none < 7 && s.off === 0 && s.none === 0) out.push(`😴 <b>${esc(st.name)}</b> no tiene día de descanso.`);
+    if (s.none < 7 && s.off === 0 && s.none === 0 && s.away === 0) out.push(`😴 <b>${esc(st.name)}</b> no tiene día de descanso.`);
   });
   if (unassigned) out.push(`❔ Hay ${unassigned} turno${unassigned === 1 ? '' : 's'} sin asignar.`);
   return out;
@@ -713,10 +724,11 @@ function viewTeam() {
       const i = info(getE(st.id, d));
       const inner = i.kind === 'work'
         ? `<span class="s">${esc(i.short)}</span><span class="t">${fmtS(i.start)}–${fmtS(i.end)}</span>${i.area ? `<span class="a" title="${esc(i.area.name)}">${i.area.icon}</span>` : ''}`
+        : i.kind === 'away' ? `<span class="a">${i.emoji}</span><span class="s">${esc(i.short)}</span>`
         : `<span class="s">${i.kind === 'off' ? 'DESC' : '—'}</span>`;
       return `<td class="${d === ti ? 'todaycol' : ''}"><button class="cell ${i.kind}" style="--c:${i.color}" data-act="cell" data-p="${esc(st.id)}" data-d="${d}" aria-label="${esc(st.name)} ${DAYS[d]}: ${esc(i.name)}">${inner}${i.note ? '<span class="nd">📝</span>' : ''}</button></td>`;
     }).join('');
-    return `<tr class="staff ${st.id === me ? 'me' : ''}"><td class="namecell"><div class="nmw"><span class="mini-av" style="--pc:${st.color}">${esc(initials(st.name))}</span><div>${esc(st.name)}<div class="hrs ${over ? 'over' : ''}">${fmtHrs(s.mins)} h · ${s.off} desc.</div></div></div></td>${cells}</tr>`;
+    return `<tr class="staff ${st.id === me ? 'me' : ''}"><td class="namecell"><div class="nmw"><span class="mini-av" style="--pc:${st.color}">${esc(initials(st.name))}</span><div>${esc(st.name)}<div class="hrs ${over ? 'over' : ''}">${fmtHrs(s.mins)} h · ${s.off} desc.${s.away ? ` · ${s.away} fuera` : ''}</div></div></div></td>${cells}</tr>`;
   }).join('');
   const cov = `<tr class="cov"><td class="namecell">Cobertura</td>${DAYS_S.map((_, d) => {
     const w = DATA.staff.map(st => info(getE(st.id, d))).filter(i => i.kind === 'work');
@@ -757,7 +769,7 @@ function viewTimeline() {
     if (i.kind === 'work') {
       const s = toMin(i.start);
       inner = `<span class="tl-bar" style="--c:${i.color};left:${P(s)};width:${(i.mins / span * 100).toFixed(2)}%">${fmtS(i.start)}–${fmtS(i.end)}${i.area ? ' ' + i.area.icon : ''}</span>`;
-    } else inner = `<span class="tl-off">${i.kind === 'off' ? '😴 Descanso' : 'Sin asignar'}</span>`;
+    } else inner = `<span class="tl-off">${i.kind === 'off' ? '😴 Descanso' : i.kind === 'away' ? `${i.emoji} ${esc(i.name)}${i.note ? ' · ' + esc(i.note) : ''}` : 'Sin asignar'}</span>`;
     return `<div class="tl-row"><div class="tl-name" ${st.id === me ? 'style="color:var(--accent)"' : ''}>${esc(st.name)}</div><div class="tl-track">${ticks}${inner}${nowLine}</div></div>`;
   }).join('');
   // Hora con más gente
@@ -813,13 +825,15 @@ function renderDock() {
     ${DATA.config.shifts.map(s => b(s.id, esc(s.short), s.color)).join('')}
     ${b('C', 'PERS' + (S.brush === 'C' ? ' ' + fmtS(S.brushCustom.start) + '–' + fmtS(S.brushCustom.end) : ''), CUSTOM_COLOR)}
     ${b('D', 'DESC', 'var(--muted)')}
+    ${b('V', '🌴 VAC', AWAY.V.color)}
+    ${b('P', '📄 PERM', AWAY.P.color)}
     ${b('X', '🧽 Borrar', 'var(--bad)')}</div>
     <span class="sep"></span>
     ${S.undo.length ? '<button class="icon-btn" data-act="undo" title="Deshacer">↶</button>' : ''}
     <button class="icon-btn" data-act="menu" title="Más opciones">⋯</button>
     <button class="pub ${dirty ? '' : 'clean'}" id="pubBtn" data-act="publish">${dirty ? '☁️ Publicar' : '✓ Publicado'}</button>`;
   $('.brushes', dock).scrollLeft = keep;
-  const names = { M: '', C: 'Personalizado', D: 'Descanso', X: 'Borrar' };
+  const names = { C: 'Personalizado', D: 'Descanso', V: 'Vacaciones', P: 'Permiso', X: 'Borrar' };
   if (S.brush) {
     if (!hint) { hint = document.createElement('div'); hint.id = 'hint'; hint.className = 'paint-hint noprint'; document.body.appendChild(hint); }
     const sh = shiftById(S.brush);
@@ -837,7 +851,7 @@ function closeSheet() { SHEET = null; $('#sheet').classList.remove('open'); $('#
 let E = null;
 function openCell(pid, d) {
   const e = getE(pid, d) || {};
-  E = { pid, d, s: e.s || '', start: e.start || S.brushCustom.start, end: e.end || S.brushCustom.end, a: e.a || '', n: e.n || '', days: [d] };
+  E = { pid, d, s: e.s || '', start: e.start || S.brushCustom.start, end: e.end || S.brushCustom.end, a: e.a || '', n: e.n || '', label: e.label || '', days: [d] };
   if (!e.s) E.s = null;
   openSheet(sheetCell);
 }
@@ -847,20 +861,28 @@ function sheetCell() {
   const opts = DATA.config.shifts.map(s => opt(s.id, esc(s.name), `${fmtS(s.start)} – ${fmt(s.end)}`, s.color)).join('')
     + opt('C', 'Personalizado', 'Elige la hora exacta', CUSTOM_COLOR)
     + opt('D', '😴 Descanso', 'Día libre', 'var(--muted)')
+    + Object.keys(AWAY).map(k => opt(k, `${AWAY[k].emoji} ${AWAY[k].name}`, AWAY[k].sub, AWAY[k].color)).join('')
     + opt('', 'Sin asignar', 'Dejar vacío', 'var(--faint)');
-  const work = E.s && E.s !== 'D';
+  const work = E.s && E.s !== 'D' && !AWAY[E.s];
+  const away = AWAY[E.s];
+  const labelUI = E.s === 'C' ? `<div class="lab">Texto del turno (opcional)</div>
+    <input class="input" data-input="e-label" maxlength="24" value="${esc(E.label)}" placeholder="Ej. Capacitación — si lo dejas vacío dice «Personalizado»">
+    <div class="qrow" style="margin-top:8px">${LABEL_IDEAS.map(x => `<button class="q ${E.label === x ? 'on' : ''}" data-act="e-label" data-v="${x}">${x}</button>`).join('')}</div>` : '';
+  const noteIdeas = away ? `<div class="qrow" style="margin-top:8px">${NOTE_IDEAS[E.s].map(x => `<button class="q ${E.n === x ? 'on' : ''}" data-act="e-noteidea" data-v="${x}">${x}</button>`).join('')}</div>` : '';
   const areas = work ? `<div class="lab">Área de trabajo</div><div class="qrow">
       <button class="q ${!E.a ? 'on' : ''}" data-act="e-area" data-v="">Sin área</button>
       ${DATA.config.areas.map(a => `<button class="q ${E.a === a.id ? 'on' : ''}" style="--c:${a.color}" data-act="e-area" data-v="${a.id}">${a.icon} ${esc(a.name)}</button>`).join('')}</div>` : '';
   return `<h3>${esc(st.name)}</h3><div class="sub">${DAYS[E.d]} ${date.getDate()} ${MONTHS[date.getMonth()]}</div>
     <div class="lab">Turno</div><div class="opts">${opts}</div>
+    ${labelUI}
     ${E.s === 'C' ? customEditor('cell') : ''}
     ${areas}
-    ${E.s !== '' ? `<div class="lab">Nota para ${esc(st.name.split(' ')[0])} (opcional)</div>
-    <input class="input" data-input="e-note" value="${esc(E.n)}" placeholder="Ej. Cubre evento, inventario, capacitación…">` : ''}
+    ${E.s !== '' ? `<div class="lab">${away ? 'Comentario' : `Nota para ${esc(st.name)}`} (opcional)</div>
+    <input class="input" data-input="e-note" value="${esc(E.n)}" placeholder="${away ? 'Ej. Cita médica, regresa el jueves…' : 'Ej. Cubre evento, llega a inventario…'}">${noteIdeas}` : ''}
     <div class="lab">Aplicar a estos días</div>
     <div class="qrow">${DAYS_S.map((n, i) => `<button class="q ${E.days.includes(i) ? 'on' : ''}" data-act="e-day" data-v="${i}">${n}</button>`).join('')}
-      <button class="q" data-act="e-allwork">Todos sus días de trabajo</button></div>
+      <button class="q" data-act="e-allwork">Todos sus días de trabajo</button>
+      <button class="q" data-act="e-allweek">Toda la semana</button></div>
     <div class="row-btns"><button class="btn" data-act="close">Cancelar</button><button class="btn primary" data-act="e-save">Guardar${E.days.length > 1 ? ` (${E.days.length} días)` : ''}</button></div>`;
 }
 const tgt = t => t === 'brush' ? S.brushCustom : E;
@@ -880,10 +902,14 @@ function customEditor(t) {
 }
 function saveCell() {
   let entry = null;
-  if (E.s === 'D') entry = { s: 'D' };
+  if (E.s === 'D' || AWAY[E.s]) entry = { s: E.s };
   else if (E.s) {
     entry = { s: E.s };
-    if (E.s === 'C') { if (E.start === E.end) { toast('La entrada y la salida no pueden ser iguales'); return; } entry.start = E.start; entry.end = E.end; S.brushCustom = { start: E.start, end: E.end }; }
+    if (E.s === 'C') {
+      if (E.start === E.end) { toast('La entrada y la salida no pueden ser iguales'); return; }
+      entry.start = E.start; entry.end = E.end; S.brushCustom = { start: E.start, end: E.end };
+      if (E.label.trim()) entry.label = E.label.trim();
+    }
     if (E.a) entry.a = E.a;
   }
   if (entry && E.n.trim()) entry.n = E.n.trim();
@@ -1151,7 +1177,7 @@ const ACT = {
     const old = getE(pid, d) || {};
     let e;
     if (S.brush === 'X') e = null;
-    else if (S.brush === 'D') e = { s: 'D' };
+    else if (S.brush === 'D' || AWAY[S.brush]) e = { s: S.brush };
     else {
       e = { s: S.brush };
       if (S.brush === 'C') { e.start = S.brushCustom.start; e.end = S.brushCustom.end; }
@@ -1174,6 +1200,9 @@ const ACT = {
     E.s = v; drawSheet();
   },
   'e-area'(el) { E.a = el.dataset.v; drawSheet(); },
+  'e-label'(el) { E.label = E.label === el.dataset.v ? '' : el.dataset.v; drawSheet(); },
+  'e-noteidea'(el) { E.n = E.n === el.dataset.v ? '' : el.dataset.v; drawSheet(); },
+  'e-allweek'() { E.days = [0, 1, 2, 3, 4, 5, 6]; drawSheet(); },
   'e-day'(el) {
     const v = +el.dataset.v, i = E.days.indexOf(v);
     if (i < 0) E.days.push(v); else if (E.days.length > 1) E.days.splice(i, 1);
@@ -1300,6 +1329,7 @@ const CHANGE = {
 };
 const INPUT = {
   'e-note'(el) { E.n = el.value; },
+  'e-label'(el) { E.label = el.value; },
   'cl-note'(el) { CL.note = el.value; },
   't-time'(el) {
     if (!el.value) return;
