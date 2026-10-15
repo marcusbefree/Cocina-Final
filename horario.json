@@ -1,48 +1,127 @@
 {
  "version": 2,
- "updated": null,
+ "updated": "2026-10-15T02:51:00.318Z",
  "config": {
   "shifts": [
-   { "id": "M", "name": "Matutino", "short": "MAT", "start": "07:00", "end": "14:00", "color": "#f2a33a" },
-   { "id": "I", "name": "Intermedio", "short": "INT", "start": "08:30", "end": "15:30", "color": "#4f9cf7" }
+   {
+    "id": "M",
+    "name": "Matutino",
+    "short": "MAT",
+    "start": "07:00",
+    "end": "14:00",
+    "color": "#f2a33a"
+   },
+   {
+    "id": "I",
+    "name": "Intermedio",
+    "short": "INT",
+    "start": "08:30",
+    "end": "15:30",
+    "color": "#4f9cf7"
+   }
   ],
   "areas": [
-   { "id": "hot", "name": "Caliente", "icon": "🔥", "color": "#ff6b4a" },
-   { "id": "cold", "name": "Fría", "icon": "❄️", "color": "#38c3ff" },
-   { "id": "dish", "name": "Loza", "icon": "🍽️", "color": "#8fd35a" }
+   {
+    "id": "hot",
+    "name": "Caliente",
+    "icon": "🔥",
+    "color": "#ff6b4a"
+   },
+   {
+    "id": "cold",
+    "name": "Fría",
+    "icon": "❄️",
+    "color": "#38c3ff"
+   },
+   {
+    "id": "dish",
+    "name": "Loza",
+    "icon": "🍽️",
+    "color": "#8fd35a"
+   }
   ],
   "cleanTasks": [
-   { "id": "filtros", "name": "Filtros", "icon": "🌀" },
-   { "id": "campana", "name": "Campana", "icon": "💨" },
-   { "id": "freidora", "name": "Freidora", "icon": "🍟" },
-   { "id": "refri", "name": "Refrigerador", "icon": "🧊" },
-   { "id": "lineafria", "name": "Línea fría", "icon": "🥗" },
-   { "id": "loza", "name": "Loza", "icon": "🍽️" },
-   { "id": "repisas", "name": "Repisas", "icon": "🗄️" },
-   { "id": "plancha", "name": "Plancha", "icon": "🔥" },
-   { "id": "fogones", "name": "Fogones", "icon": "🍳" },
-   { "id": "paredes", "name": "Paredes", "icon": "🧽" },
-   { "id": "congelador", "name": "Congelador", "icon": "❄️" }
+   {
+    "id": "filtros",
+    "name": "Filtros",
+    "icon": "🌀"
+   },
+   {
+    "id": "campana",
+    "name": "Campana",
+    "icon": "💨"
+   },
+   {
+    "id": "freidora",
+    "name": "Freidora",
+    "icon": "🍟"
+   },
+   {
+    "id": "refri",
+    "name": "Refrigerador",
+    "icon": "🧊"
+   },
+   {
+    "id": "lineafria",
+    "name": "Línea fría",
+    "icon": "🥗"
+   },
+   {
+    "id": "loza",
+    "name": "Loza",
+    "icon": "🍽️"
+   },
+   {
+    "id": "repisas",
+    "name": "Repisas",
+    "icon": "🗄️"
+   },
+   {
+    "id": "plancha",
+    "name": "Plancha",
+    "icon": "🔥"
+   },
+   {
+    "id": "fogones",
+    "name": "Fogones",
+    "icon": "🍳"
+   },
+   {
+    "id": "paredes",
+    "name": "Paredes",
+    "icon": "🧽"
+   },
+   {
+    "id": "congelador",
+    "name": "Congelador",
+    "icon": "❄️"
+   }
   ],
   "maxHours": 48,
-  "minPerDay": 2
+  "minPerDay": 2,
+  "pinHash": "h7c78de94"
  },
  "staff": [
-  { "id": "marcos", "name": "Marcos", "color": "#f2a33a" },
-  { "id": "cubre", "name": "Cubre turnos", "color": "#4f9cf7" },
-  { "id": "gisselle", "name": "Gisselle", "color": "#e86aa6" },
-  { "id": "alexis", "name": "Alexis", "color": "#4fd1a5" }
- ],
- "weeks": {
-  "2026-10-08": {
-   "days": {
-    "marcos":   [{"s":"M"},{"s":"M"},{"s":"D"},{"s":"M"},{"s":"I"},{"s":"I"},{"s":"M"}],
-    "cubre":    [{"s":"I"},{"s":"I"},{"s":"M"},{"s":"D"},{"s":"M"},{"s":"M"},{"s":"I"}],
-    "gisselle": [{"s":"M"},{"s":"D"},{"s":"I"},{"s":"I"},{"s":"M"},{"s":"M"},{"s":"I"}],
-    "alexis":   [{"s":"I"},{"s":"M"},{"s":"M"},{"s":"I"},{"s":"D"},{"s":"M"},{"s":"M"}]
-   },
-   "clean": {},
-   "notes": ["","","","","","",""]
+  {
+   "id": "marcos",
+   "name": "Marcos",
+   "color": "#f2a33a"
+  },
+  {
+   "id": "cubre",
+   "name": "Cubre turnos",
+   "color": "#4f9cf7"
+  },
+  {
+   "id": "gisselle",
+   "name": "Gisselle",
+   "color": "#e86aa6"
+  },
+  {
+   "id": "alexis",
+   "name": "Alexis",
+   "color": "#4fd1a5"
   }
- }
+ ],
+ "weeks": {}
 }
