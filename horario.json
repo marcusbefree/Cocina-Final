@@ -29,7 +29,7 @@
  },
  "staff": [
   { "id": "marcos", "name": "Marcos", "color": "#f2a33a" },
-  { "id": "leonardo", "name": "Leonardo", "color": "#4f9cf7" },
+  { "id": "cubre", "name": "Cubre turnos", "color": "#4f9cf7" },
   { "id": "gisselle", "name": "Gisselle", "color": "#e86aa6" },
   { "id": "alexis", "name": "Alexis", "color": "#4fd1a5" }
  ],
@@ -37,7 +37,7 @@
   "2026-10-08": {
    "days": {
     "marcos":   [{"s":"M"},{"s":"M"},{"s":"D"},{"s":"M"},{"s":"I"},{"s":"I"},{"s":"M"}],
-    "leonardo": [{"s":"I"},{"s":"I"},{"s":"M"},{"s":"D"},{"s":"M"},{"s":"M"},{"s":"I"}],
+    "cubre":    [{"s":"I"},{"s":"I"},{"s":"M"},{"s":"D"},{"s":"M"},{"s":"M"},{"s":"I"}],
     "gisselle": [{"s":"M"},{"s":"D"},{"s":"I"},{"s":"I"},{"s":"M"},{"s":"M"},{"s":"I"}],
     "alexis":   [{"s":"I"},{"s":"M"},{"s":"M"},{"s":"I"},{"s":"D"},{"s":"M"},{"s":"M"}]
    },

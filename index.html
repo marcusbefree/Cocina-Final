@@ -385,7 +385,7 @@ const DEFAULT_DATA = {
     maxHours: 48, minPerDay: 2
   },
   staff: [
-    { id:'marcos', name:'Marcos', color:'#f2a33a' }, { id:'leonardo', name:'Leonardo', color:'#4f9cf7' },
+    { id:'marcos', name:'Marcos', color:'#f2a33a' }, { id:'cubre', name:'Cubre turnos', color:'#4f9cf7' },
     { id:'gisselle', name:'Gisselle', color:'#e86aa6' }, { id:'alexis', name:'Alexis', color:'#4fd1a5' }
   ],
   weeks: {}
@@ -649,7 +649,7 @@ function viewMe() {
   return `<section class="fade">
     <div class="hello">
       <span class="avatar" style="--pc:${st.color}">${esc(initials(st.name))}</span>
-      <div><h2>Hola, ${esc(st.name.split(' ')[0])}</h2><div class="sub">Este es tu horario</div></div>
+      <div><h2>Hola, ${esc(st.name)}</h2><div class="sub">Este es tu horario</div></div>
       <button class="pill sp noprint" data-act="switch">Cambiar</button>
     </div>
     ${heroCard(st.id)}
@@ -987,7 +987,7 @@ function sheetLinks() {
   const row = (name, url, color) => `<div class="linkrow">${color ? `<span class="mini-av" style="--pc:${color}">${esc(initials(name))}</span>` : '<span class="mini-av" style="--pc:var(--accent)">👥</span>'}
     <div style="flex:1;min-width:0"><b>${esc(name)}</b><div class="u">${esc(url)}</div></div>
     <button class="sbtn" data-act="copy" data-v="${esc(url)}" title="Copiar">⧉</button>
-    <a class="sbtn" style="display:grid;place-items:center;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola ${name.split(' ')[0]}, este es tu horario de cocina 🍳 ${url}`)}" title="WhatsApp">💬</a></div>`;
+    <a class="sbtn" style="display:grid;place-items:center;text-decoration:none" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Hola ${name}, este es tu horario de cocina 🍳 ${url}`)}" title="WhatsApp">💬</a></div>`;
   return `<h3>🔗 Links para compartir</h3><div class="sub">Cada link abre directo el horario de esa persona, resaltado, y muestra al resto del equipo.</div>
     <div style="margin-top:10px">${DATA.staff.map(s => row(s.name, personLink(s.id), s.color)).join('')}${row('Todo el equipo', base + '?v=equipo')}</div>
     ${location.protocol === 'file:' ? '<p class="help" style="margin-top:10px">⚠️ Abriste el archivo local. Los links funcionarán cuando abras la página publicada en GitHub Pages.</p>' : ''}
