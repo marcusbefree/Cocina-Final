@@ -1,6 +1,6 @@
 {
  "version": 2,
- "updated": "2026-10-28T01:38:31.677Z",
+ "updated": "2026-10-28T02:04:15.207Z",
  "config": {
   "shifts": [
    {
@@ -385,6 +385,159 @@
       "lineafria",
       "freidora",
       "paredes"
+     ],
+     "note": ""
+    }
+   },
+   "notes": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ]
+  },
+  "2026-10-29": {
+   "days": {
+    "marcos": [
+     {
+      "s": "M",
+      "a": "cold",
+      "n": "denme cafecito"
+     },
+     {
+      "s": "D"
+     },
+     {
+      "s": "C",
+      "start": "11:00",
+      "end": "18:00",
+      "n": "inventario :("
+     },
+     {
+      "s": "I",
+      "a": "dish"
+     },
+     {
+      "s": "M",
+      "a": "cold"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "I"
+     }
+    ],
+    "gisselle": [
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00",
+      "a": "dish"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "C",
+      "start": "07:00",
+      "end": "15:00",
+      "a": "hot",
+      "n": "hora pendiente"
+     },
+     {
+      "s": "C",
+      "start": "07:00",
+      "end": "15:00",
+      "a": "hot",
+      "n": "hora pendiente"
+     },
+     {
+      "s": "C",
+      "start": "11:00",
+      "end": "16:00",
+      "a": "dish"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00"
+     },
+     {
+      "s": "D"
+     }
+    ],
+    "alexis": [
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00",
+      "a": "cold"
+     },
+     {
+      "s": "C",
+      "start": "08:00",
+      "end": "16:00",
+      "a": "dish",
+      "n": "se paga una hora pendiente"
+     },
+     null,
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "D"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     }
+    ],
+    "cubre": [
+     null,
+     null,
+     {
+      "s": "M",
+      "a": "dish"
+     },
+     {
+      "s": "M",
+      "a": "cold"
+     },
+     null,
+     null,
+     null
+    ]
+   },
+   "clean": {
+    "marcos": {
+     "tasks": [
+      "campana",
+      "filtros"
+     ],
+     "note": ""
+    },
+    "alexis": {
+     "tasks": [
+      "freidora",
+      "refri"
+     ],
+     "note": ""
+    },
+    "gisselle": {
+     "tasks": [
+      "lineafria",
+      "loza"
      ],
      "note": ""
     }
