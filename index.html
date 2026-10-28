@@ -4,13 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#121110">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cocina VR">
 <meta name="description" content="Horario semanal de la cocina Valle Real">
 <title>Cocina Valle Real · Horario</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍳</text></svg>">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#121110; --surface:#1a1916; --card:#22201c; --card2:#2b2823; --line:#35312a;
@@ -19,7 +21,7 @@
   --shadow:0 12px 32px rgba(0,0,0,.35);
   --fd:'Bricolage Grotesque',system-ui,sans-serif;
   --fb:'Manrope',system-ui,sans-serif;
-  --fm:'JetBrains Mono',ui-monospace,monospace;
+  --fm:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;
 }
 html[data-theme=light]{
   --bg:#f5f1ea; --surface:#fffdf9; --card:#ffffff; --card2:#f2ece3; --line:#e3dbcf;
@@ -27,6 +29,9 @@ html[data-theme=light]{
   --accent:#d9831a; --accent-ink:#ffffff; --ok:#3f9d2f; --warn:#b98400; --bad:#d63b2b;
   --shadow:0 10px 26px rgba(60,40,10,.09);
 }
+/* En tema claro, los colores de turno/persona usados como texto se oscurecen para que se lean sobre blanco */
+html[data-theme=light] :is(.cell .s,.dcard .sh,.hero .shift,.chip,.opt .o1,.q.on,.brush,.cov span,.avatar,.mini-av){color:color-mix(in srgb,var(--c,var(--pc,var(--text))) 58%,#000)}
+html[data-theme=light] :is(.avatar,.mini-av){color:color-mix(in srgb,var(--pc) 58%,#000)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font:15px/1.45 var(--fb);min-height:100vh;padding-bottom:120px;transition:background .2s}
@@ -154,6 +159,7 @@ table.focus tbody tr.staff:not(.me):hover{opacity:1}
 .cov td{font-size:11px;color:var(--muted);padding:10px 4px;font-weight:700}
 .cov .n{font:800 17px var(--fd);color:var(--text);display:block}
 .cov td.low .n{color:var(--warn)}
+.cov td span[style]{color:var(--c)}
 .is-admin .grid .cell{cursor:pointer}
 @media(hover:hover){.is-admin .grid .cell:hover{transform:scale(1.04)}}
 .toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted)}
@@ -261,6 +267,7 @@ html[data-theme=light] .tin input{color-scheme:light}
 .mi .ic{font-size:18px;width:24px;text-align:center}
 .mi small{display:block;color:var(--muted);font-weight:500;font-size:12px}
 .mi.danger{color:var(--bad)}
+a.mi{text-decoration:none;color:inherit}
 .ed-row{display:flex;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}
 .ed-row input[type=color]{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--card);padding:2px;flex-shrink:0}
 .ed-row .input{flex:1;min-width:0}
@@ -308,9 +315,9 @@ html[data-theme=light] .tin input{color-scheme:light}
 <header class="top noprint">
   <div class="wrap">
     <button class="brand" data-act="home" aria-label="Inicio">🍳 Cocina <b>Valle Real</b></button>
-    <button class="icon-btn" id="teamBtn" data-act="team" title="Horario del equipo">👥<span class="t">Equipo</span></button>
-    <button class="icon-btn" id="themeBtn" data-act="theme" title="Cambiar tema">🌙</button>
-    <button class="icon-btn" id="adminBtn" data-act="admin" title="Modo administrador">🔒</button>
+    <button class="icon-btn" id="teamBtn" data-act="team" title="Horario del equipo" aria-label="Horario del equipo">👥<span class="t">Equipo</span></button>
+    <button class="icon-btn" id="themeBtn" data-act="theme" title="Cambiar tema" aria-label="Cambiar a tema claro">🌙</button>
+    <button class="icon-btn" id="adminBtn" data-act="admin" title="Modo administrador" aria-label="Entrar al modo administrador">🔒</button>
   </div>
 </header>
 
@@ -409,10 +416,21 @@ const S = {
   day: null, focus: true, undo: [], staleDraft: false, confirmDel: null
 };
 
+/* Saneado: colores, íconos e ids terminan dentro de atributos HTML, así que solo se aceptan formas seguras */
+const safeColor = (c, d = '#9a9182') => /^#[0-9a-f]{6}$/i.test(c) ? c : d;
+const safeIcon = s => String(s == null ? '' : s).replace(/[<>&"'`=\\]/g, '').slice(0, 8);
+const okId = x => x && typeof x === 'object' && /^[\w-]{1,40}$/.test(x.id);
 function normalize(d) {
   d.config = Object.assign(clone(DEFAULT_DATA.config), d.config || {});
-  d.staff = Array.isArray(d.staff) ? d.staff : [];
-  d.weeks = d.weeks || {};
+  const c = d.config;
+  ['shifts', 'areas', 'cleanTasks'].forEach(k => { c[k] = (Array.isArray(c[k]) ? c[k] : []).filter(okId); });
+  if (!c.shifts.length) c.shifts = clone(DEFAULT_DATA.config.shifts);
+  c.shifts.forEach(s => { s.color = safeColor(s.color); s.start = /^\d{2}:\d{2}$/.test(s.start) ? s.start : '07:00'; s.end = /^\d{2}:\d{2}$/.test(s.end) ? s.end : '14:00'; });
+  c.areas.forEach(a => { a.color = safeColor(a.color); a.icon = safeIcon(a.icon); });
+  c.cleanTasks.forEach(t => { t.icon = safeIcon(t.icon); });
+  d.staff = (Array.isArray(d.staff) ? d.staff : []).filter(okId);
+  d.staff.forEach(s => { s.color = safeColor(s.color); });
+  d.weeks = d.weeks && typeof d.weeks === 'object' ? d.weeks : {};
   return d;
 }
 const staffById = id => DATA.staff.find(s => s.id === id);
@@ -446,7 +464,10 @@ function info(e) {
   if (e.s === 'D') return { kind:'off', name:'Descanso', short:'DESC', color:'var(--faint)', mins:0, note:e.n || '' };
   if (AWAY[e.s]) { const a = AWAY[e.s]; return { kind:'away', name:a.name, short:a.short, color:a.color, emoji:a.emoji, mins:0, note:e.n || '' }; }
   let sh;
-  if (e.s === 'C') sh = { name:e.label || 'Personalizado', short:e.label ? e.label.toUpperCase() : 'PERS', start:e.start, end:e.end, color:CUSTOM_COLOR };
+  if (e.s === 'C') {
+    const okT = t => /^\d{2}:\d{2}$/.test(t) ? t : null;
+    sh = { name:e.label || 'Personalizado', short:e.label ? e.label.toUpperCase() : 'PERS', start:okT(e.start), end:okT(e.end), color:CUSTOM_COLOR };
+  }
   else sh = shiftById(e.s);
   if (!sh || !sh.start || !sh.end) return none;
   return { kind:'work', name:sh.name, short:sh.short, start:sh.start, end:sh.end, color:sh.color,
@@ -483,8 +504,14 @@ async function load() {
     const r = await fetch('horario.json?t=' + Date.now(), { cache: 'no-store' });
     if (r.ok) pub = await r.json();
   } catch (e) {}
-  if (pub) { SOURCE = 'server'; LS.set('cvr-cache', pub); }
-  else { pub = LS.get('cvr-cache'); SOURCE = pub ? 'cache' : 'default'; if (!pub) pub = clone(DEFAULT_DATA); }
+  const cache = LS.get('cvr-cache');
+  if (pub) {
+    SOURCE = 'server';
+    // GitHub Pages tarda 1–2 min en servir lo recién publicado: si este teléfono ya tiene algo más nuevo, se usa eso
+    if (cache && cache.updated && (!pub.updated || cache.updated > pub.updated)) pub = cache;
+    else LS.set('cvr-cache', pub);
+  }
+  else { pub = cache; SOURCE = pub ? 'cache' : 'default'; if (!pub) pub = clone(DEFAULT_DATA); }
   normalize(pub);
   PUB_STR = JSON.stringify(pub);
   PUB_UPDATED = pub.updated;
@@ -542,6 +569,7 @@ function render() {
   document.body.classList.toggle('is-admin', S.admin);
   $('#adminBtn').classList.toggle('on', S.admin);
   $('#adminBtn').innerHTML = S.admin ? '🔓<span class="t">Admin</span>' : '🔒';
+  $('#adminBtn').setAttribute('aria-label', S.admin ? 'Opciones de administrador' : 'Entrar al modo administrador');
   $('#teamBtn').classList.toggle('on', S.view === 'team');
   const sx = window.scrollX, sy = window.scrollY;
   const gx = $('.gridwrap') ? $('.gridwrap').scrollLeft : 0;
@@ -621,12 +649,12 @@ function heroCard(pid) {
     else { status = `✅ Turno terminado. ${nextShift(pid, ti)}`; pct = 100; }
     if (i.area) emoji = i.area.icon;
   } else if (i.kind === 'off') { status = `Disfruta tu día. ${nextShift(pid, ti)}`; emoji = '😴'; }
-  else if (i.kind === 'away') { status = `${i.emoji} ${i.kind === 'away' && AWAY.V.name === i.name ? '¡Disfruta tus vacaciones!' : 'Tienes permiso hoy.'} ${nextShift(pid, ti)}`; emoji = i.emoji; }
+  else if (i.kind === 'away') { status = `${i.emoji} ${i.name === AWAY.V.name ? '¡Disfruta tus vacaciones!' : 'Tienes permiso hoy.'} ${nextShift(pid, ti)}`; emoji = i.emoji; }
   else status = 'Tu turno de hoy todavía no está asignado.';
   const dn = dayNote(ti);
   return `<div class="hero" id="hero" style="--c:${i.color}">
     <div class="kick">Hoy · ${DAYS[ti]} ${date.getDate()} ${MONTHS[date.getMonth()]}</div>
-    <div class="shift">${esc(i.kind === 'work' ? i.name : i.name)}</div>
+    <div class="shift">${esc(i.name)}</div>
     ${i.kind === 'work' ? `<div class="time">${fmt(i.start)} – ${fmt(i.end)}</div>
       <div class="chips">${i.area ? `<span class="chip" style="--c:${i.area.color}">${i.area.icon} ${esc(i.area.name)}</span>` : ''}<span class="chip">${fmtDur(i.mins)}</span></div>` : ''}
     ${i.note ? `<div class="note">📝 ${esc(i.note)}</div>` : ''}
@@ -671,11 +699,12 @@ function viewMe() {
       <div class="stat"><div class="v">${stats.off + stats.away}</div><div class="k">${stats.away ? `${stats.off} desc. · ${stats.away} vac./perm.` : 'descansos'}</div></div>
     </div>
     <div class="card my-tasks"><h4>🧽 Mis limpiezas profundas</h4>
-      ${tasks ? `<div class="muted" style="font-size:13px">Márcalas cuando las termines (se guarda en tu teléfono).</div>${tasks}` : '<div class="empty">No tienes limpiezas asignadas esta semana. 🙌</div>'}
+      ${tasks ? `<div class="muted" style="font-size:13px">Márcalas cuando las termines y avisa al encargado con el botón de abajo.</div>${tasks}
+        <div class="actions noprint" style="margin-top:10px"><button class="pill" data-act="clean-report">💬 Avisar al encargado (${done.filter(x => cl.tasks.includes(x)).length}/${cl.tasks.length})</button></div>` : '<div class="empty">No tienes limpiezas asignadas esta semana. 🙌</div>'}
       ${cl.note ? `<div class="daynote">📝 ${esc(cl.note)}</div>` : ''}
     </div>
     <div class="actions noprint">
-      <button class="pill" data-act="ics">📅 Agregar a mi calendario</button>
+      <button class="pill" data-act="cal">📅 Agregar a mi calendario</button>
       <button class="pill" data-act="share">📤 Compartir mi horario</button>
     </div>
   </section>`;
@@ -734,10 +763,10 @@ function viewTeam() {
     const w = DATA.staff.map(st => info(getE(st.id, d))).filter(i => i.kind === 'work');
     const per = DATA.config.shifts.map(sh => {
       const n = DATA.staff.filter(st => (getE(st.id, d) || {}).s === sh.id).length;
-      return n ? `<span style="color:${sh.color}">${n} ${esc(sh.short)}</span>` : '';
+      return n ? `<span style="--c:${sh.color}">${n} ${esc(sh.short)}</span>` : '';
     }).filter(Boolean);
     const nc = DATA.staff.filter(st => (getE(st.id, d) || {}).s === 'C').length;
-    if (nc) per.push(`<span style="color:${CUSTOM_COLOR}">${nc} PERS</span>`);
+    if (nc) per.push(`<span style="--c:${CUSTOM_COLOR}">${nc} PERS</span>`);
     return `<td class="${w.length < DATA.config.minPerDay ? 'low' : ''}"><span class="n">${w.length}</span>${per.join(' · ') || 'nadie'}</td>`;
   }).join('')}</tr>`;
   return `<section class="fade">
@@ -843,9 +872,19 @@ function renderDock() {
 
 /* ═══════════ HOJAS (modales) ═══════════ */
 let SHEET = null;
-function openSheet(fn) { SHEET = fn; drawSheet(); $('#sheet').classList.add('open'); $('#scrim').classList.add('open'); $('#sheet').scrollTop = 0; }
+let SHEET_OPENER = null;
+function openSheet(fn) {
+  if (!SHEET) SHEET_OPENER = document.activeElement;
+  SHEET = fn; drawSheet(); $('#sheet').classList.add('open'); $('#scrim').classList.add('open'); $('#sheet').scrollTop = 0;
+  $('#sheet').setAttribute('tabindex', '-1'); $('#sheet').focus({ preventScroll: true });
+}
 function drawSheet() { if (!SHEET) return; const el = $('#sheet'), sc = el.scrollTop; el.innerHTML = '<div class="grab"></div>' + SHEET(); el.scrollTop = sc; }
-function closeSheet() { SHEET = null; $('#sheet').classList.remove('open'); $('#scrim').classList.remove('open'); }
+function closeSheet() {
+  if (!SHEET) return;
+  SHEET = null; $('#sheet').classList.remove('open'); $('#scrim').classList.remove('open');
+  if (SHEET_OPENER && document.contains(SHEET_OPENER)) SHEET_OPENER.focus({ preventScroll: true });
+  SHEET_OPENER = null;
+}
 
 /* — Editor de celda — */
 let E = null;
@@ -949,7 +988,7 @@ function sheetMenu() {
     <div class="menu-list">
       ${mi('copy-prev', '📋', 'Copiar la semana anterior aquí', 'Trae los turnos de la semana pasada')}
       ${mi('copy-next', '⏭️', 'Copiar esta semana a la siguiente', 'Útil para planear por adelantado')}
-      ${mi('rotate', '🔄', 'Copiar la anterior rotando descansos', 'Cada persona recorre su descanso un día')}
+      ${mi('rotate', '🔄', 'Copiar la anterior recorrida un día', 'La semana de cada persona se corre un día (descansos incluidos)')}
       ${mi('staff', '👥', 'Equipo', 'Agregar, renombrar, ordenar o quitar personas')}
       ${mi('settings', '⏰', 'Turnos, limpiezas y reglas', 'Horarios fijos, mínimos, horas máximas, PIN')}
       ${mi('links', '🔗', 'Links para compartir', 'Un link personal para cada persona')}
@@ -1077,27 +1116,72 @@ function copyWeek(from, to, rotate) {
   });
   toast(rotate ? '🔄 Copiada con descansos recorridos' : '📋 Semana copiada');
 }
-function downloadICS(pid) {
-  const st = staffById(pid), ws = fromIso(S.week);
-  const stamp = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
-  const tx = s => String(s).replace(/[\\,;]/g, m => '\\' + m).replace(/\n/g, '\\n');
-  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cocina Valle Real//Horario//ES', 'CALSCALE:GREGORIAN'];
+/* ═══════════ CALENDARIO (.ics) ═══════════ */
+/* Al publicar se sube calendario/<persona>.ics; iPhone y Google se suscriben a ese link y se actualizan solos */
+const calPath = pid => `calendario/${pid}.ics`;
+const calUrl = pid => location.origin + location.pathname.replace(/[^/]*$/, '') + calPath(pid);
+const icsUTC = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const icsDate = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+const icsText = s => String(s).replace(/[\\,;]/g, m => '\\' + m).replace(/\r?\n/g, '\\n');
+function icsFold(line) {
+  // RFC 5545: máximo 75 bytes por línea; la continuación empieza con un espacio
+  const enc = new TextEncoder(); let out = '', cur = '', n = 0;
+  for (const ch of line) { const b = enc.encode(ch).length; if (n + b > 74) { out += cur + '\r\n '; cur = ''; n = 1; } cur += ch; n += b; }
+  return out + cur;
+}
+/* Semanas que van en la suscripción: las últimas 8 y todas las futuras */
+const feedWeeks = () => { const from = iso(addDays(fromIso(thisWeek()), -56)); return Object.keys(DATA.weeks).filter(k => k >= from).sort(); };
+function buildICS(pid, weekKeys) {
+  const st = staffById(pid), now = icsUTC(new Date());
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Cocina Valle Real//Horario//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    `X-WR-CALNAME:${icsText('Cocina · ' + (st ? st.name : pid))}`, 'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H'];
   let n = 0;
-  for (let d = 0; d < 7; d++) {
-    const i = info(getE(pid, d)); if (i.kind !== 'work') continue;
-    const day = addDays(ws, d), s = toMin(i.start);
-    const a = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, s);
-    const b = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, s + i.mins);
-    L.push('BEGIN:VEVENT', `UID:${S.week}-${pid}-${d}@cocina-valle-real`, `DTSTAMP:${stamp(new Date())}`,
-      `DTSTART:${stamp(a)}`, `DTEND:${stamp(b)}`, `SUMMARY:${tx('🍳 Turno ' + i.name + ' · Cocina')}`,
-      `DESCRIPTION:${tx([i.area ? 'Área: ' + i.area.name : '', i.note].filter(Boolean).join('\n'))}`,
-      'BEGIN:VALARM', 'TRIGGER:-PT60M', 'ACTION:DISPLAY', 'DESCRIPTION:Entras a la cocina en 1 hora', 'END:VALARM', 'END:VEVENT');
-    n++;
-  }
+  if (st) weekKeys.forEach(k => {
+    const ws = fromIso(k);
+    for (let d = 0; d < 7; d++) {
+      const i = info(getE(pid, d, k));
+      if (i.kind !== 'work' && i.kind !== 'away') continue;
+      const day = addDays(ws, d), dn = dayNote(d, k);
+      const ev = ['BEGIN:VEVENT', `UID:${k}-${pid}-${d}@cocina-valle-real`, `DTSTAMP:${now}`];
+      if (i.kind === 'work') {
+        // Hora local de la cocina convertida a UTC: así Google e iPhone no la recorren por zona horaria
+        const s = toMin(i.start), at = m => new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, m);
+        ev.push(`DTSTART:${icsUTC(at(s))}`, `DTEND:${icsUTC(at(s + i.mins))}`, `SUMMARY:${icsText('🍳 ' + i.name + ' · Cocina')}`);
+        const desc = [i.area ? 'Área: ' + i.area.name : '', i.note, dn ? 'Aviso: ' + dn : ''].filter(Boolean).join('\n');
+        if (desc) ev.push(`DESCRIPTION:${icsText(desc)}`);
+        ev.push('BEGIN:VALARM', 'TRIGGER:-PT60M', 'ACTION:DISPLAY', 'DESCRIPTION:Entras a la cocina en 1 hora', 'END:VALARM');
+      } else {
+        ev.push(`DTSTART;VALUE=DATE:${icsDate(day)}`, `DTEND;VALUE=DATE:${icsDate(addDays(day, 1))}`,
+          `SUMMARY:${icsText(i.emoji + ' ' + i.name)}`, 'TRANSP:TRANSPARENT');
+        if (i.note) ev.push(`DESCRIPTION:${icsText(i.note)}`);
+      }
+      ev.push('END:VEVENT'); L.push(...ev); n++;
+    }
+  });
   L.push('END:VCALENDAR');
+  return { text: L.map(icsFold).join('\r\n') + '\r\n', n };
+}
+function downloadICS(pid) {
+  const { text, n } = buildICS(pid, [S.week]);
   if (!n) { toast('No tienes turnos esta semana'); return; }
-  download(`turnos-${pid}-${S.week}.ics`, L.join('\r\n'), 'text/calendar');
-  toast(`📅 ${n} turnos listos para tu calendario (con aviso 1 h antes)`);
+  download(`turnos-${pid}-${S.week}.ics`, text, 'text/calendar');
+  toast(`📅 ${n} eventos listos para tu calendario`);
+}
+let CAL_OK = null;
+function sheetCal() {
+  const st = staffById(S.person); if (!st) return '';
+  const https = calUrl(st.id), webcal = https.replace(/^https?:/, 'webcal:');
+  const warn = !/^https?:$/.test(location.protocol) ? '⚠️ Abriste el archivo local. La suscripción funciona desde la página publicada en GitHub Pages.'
+    : CAL_OK === false ? '⏳ Tu calendario aún no está publicado. Pídele al encargado que publique el horario una vez y vuelve a intentar.' : '';
+  return `<h3>📅 Tus turnos en tu calendario</h3><div class="sub">Te suscribes una sola vez. Cada vez que el encargado publique cambios, tu calendario se actualiza solo.</div>
+    ${warn ? `<div class="banner">${warn}</div>` : ''}
+    <div class="menu-list">
+      <a class="mi" href="${esc(webcal)}"><span class="ic">🍎</span><span>iPhone, iPad o Mac<small>Se abre Calendario → «Suscribirse». Para el aviso de 1 h antes, desactiva «Quitar alertas».</small></span></a>
+      <a class="mi" href="https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}" target="_blank" rel="noopener"><span class="ic">📆</span><span>Google Calendar<small>Hazlo desde el navegador (en Android, ábrelo en Chrome). Google refresca cada varias horas.</small></span></a>
+      <button class="mi" data-act="copy" data-v="${esc(https)}"><span class="ic">🔗</span><span>Copiar link del calendario<small>Para Outlook u otras apps: «Agregar calendario desde URL»</small></span></button>
+      <button class="mi" data-act="ics"><span class="ic">⬇️</span><span>Descargar solo esta semana (.ics)<small>Copia fija: no se actualiza si cambia el horario</small></span></button>
+    </div>
+    <div class="row-btns"><button class="btn" data-act="close">Listo</button></div>`;
 }
 async function sharePerson(pid) {
   const st = staffById(pid), url = personLink(pid);
@@ -1105,7 +1189,7 @@ async function sharePerson(pid) {
   if (navigator.share) { try { await navigator.share({ title: 'Cocina Valle Real', text, url }); } catch (e) {} }
   else copyText(url);
 }
-const b64 = s => { const bytes = new TextEncoder().encode(s); let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); };
+const unb64 = s => new TextDecoder().decode(Uint8Array.from(atob(String(s).replace(/\s/g, '')), c => c.charCodeAt(0)));
 async function ghFetch(g, method, body) {
   const api = `https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/contents/${g.path.split('/').map(encodeURIComponent).join('/')}`;
   const url = method === 'GET' ? `${api}?ref=${encodeURIComponent(g.branch)}&t=${Date.now()}` : api;
@@ -1117,22 +1201,46 @@ async function ghError(r) {
   if (r.status === 401) return 'Token inválido o vencido';
   if (r.status === 403) return 'El token no tiene permiso de escritura (Contents: Read and write)';
   if (r.status === 404) return 'No se encontró el repositorio o la rama';
-  if (r.status === 409) return 'Conflicto: alguien publicó al mismo tiempo, intenta de nuevo';
+  if (r.status === 409 || (r.status === 422 && /fast.forward/i.test(m))) return 'Conflicto: alguien publicó al mismo tiempo, intenta de nuevo';
   return `Error ${r.status}${m ? ': ' + m : ''}`;
 }
+async function gh(g, method, path, body) {
+  const r = await fetch(`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}${path}`,
+    { method, cache: 'no-store', headers: { Authorization: 'Bearer ' + g.token, Accept: 'application/vnd.github+json' }, body: body ? JSON.stringify(body) : undefined });
+  if (!r.ok) { const e = new Error(await ghError(r)); e.status = r.status; throw e; }
+  return r.json();
+}
+/* Publica horario.json y los calendarios en un solo commit. Si alguien publicó después de que
+   empezaste a editar, no sobrescribe: avisa y deja elegir qué versión conservar. */
 async function publish() {
   const g = ghCfg();
   if (!g.token) { openSheet(sheetGH); toast('Primero conecta GitHub (solo una vez)'); return; }
   if (!isDirty()) { toast('No hay cambios por publicar'); return; }
   const btn = $('#pubBtn'); if (btn) { btn.disabled = true; btn.textContent = 'Publicando…'; }
   try {
-    const cur = await ghFetch(g, 'GET');
-    let sha;
-    if (cur.ok) sha = (await cur.json()).sha;
-    else if (cur.status !== 404) throw new Error(await ghError(cur));
+    const enc = p => p.split('/').map(encodeURIComponent).join('/');
+    const ref = await gh(g, 'GET', `/git/ref/heads/${enc(g.branch)}`), head = ref.object.sha;
+    let remote = null;
+    try { remote = JSON.parse(unb64((await gh(g, 'GET', `/contents/${enc(g.path)}?ref=${head}`)).content)); }
+    catch (e) { if (e.status !== 404) throw e; }
+    if (remote && (remote.updated || null) !== (PUB_UPDATED || null)) {
+      normalize(remote);
+      PUB_STR = JSON.stringify(remote); PUB_UPDATED = remote.updated; LS.set('cvr-cache', remote);
+      S.staleDraft = true; render();
+      toast('⚠️ Alguien publicó otra versión mientras editabas. Elige arriba cuál conservar.', 6000);
+      return;
+    }
+    const commit = await gh(g, 'GET', `/git/commits/${head}`);
     const out = clone(DATA); out.updated = new Date().toISOString();
-    const res = await ghFetch(g, 'PUT', { message: `Horario actualizado (${weekLabel(S.week)})`, content: b64(JSON.stringify(out, null, 1) + '\n'), branch: g.branch, sha });
-    if (!res.ok) throw new Error(await ghError(res));
+    const dir = g.path.includes('/') ? g.path.replace(/[^/]*$/, '') : '';
+    const weeks = feedWeeks();
+    const files = [{ path: g.path, content: JSON.stringify(out, null, 1) + '\n' }];
+    out.staff.forEach(st => files.push({ path: dir + calPath(st.id), content: buildICS(st.id, weeks).text }));
+    // A quien salió del equipo se le deja el calendario vacío para que sus turnos viejos desaparezcan
+    (JSON.parse(PUB_STR).staff || []).filter(s => !staffById(s.id)).forEach(s => files.push({ path: dir + calPath(s.id), content: buildICS(s.id, []).text }));
+    const tree = await gh(g, 'POST', '/git/trees', { base_tree: commit.tree.sha, tree: files.map(f => ({ path: f.path, mode: '100644', type: 'blob', content: f.content })) });
+    const nc = await gh(g, 'POST', '/git/commits', { message: `Horario actualizado (${weekLabel(S.week)})`, tree: tree.sha, parents: [head] });
+    await gh(g, 'PATCH', `/git/refs/heads/${enc(g.branch)}`, { sha: nc.sha });
     DATA = out; PUB_STR = JSON.stringify(out); PUB_UPDATED = out.updated;
     LS.set('cvr-cache', out); LS.del('cvr-draft'); S.staleDraft = false;
     render();
@@ -1165,6 +1273,20 @@ const ACT = {
     LS.set(k, d); render();
   },
   ics() { downloadICS(S.person); },
+  cal() {
+    CAL_OK = null; openSheet(sheetCal);
+    if (/^https?:$/.test(location.protocol)) fetch(calUrl(S.person) + '?t=' + Date.now(), { method: 'HEAD', cache: 'no-store' })
+      .then(r => { CAL_OK = r.ok; }).catch(() => { CAL_OK = false; }).finally(() => { if (SHEET === sheetCal) drawSheet(); });
+  },
+  'clean-report'() {
+    const st = staffById(S.person), cl = getClean(S.person), done = LS.get(`cvr-done-${S.week}-${S.person}`, []);
+    const nm = id => { const t = DATA.config.cleanTasks.find(x => x.id === id); return t ? `${t.icon} ${t.name}` : null; };
+    const ok = cl.tasks.filter(t => done.includes(t)).map(nm).filter(Boolean);
+    const pend = cl.tasks.filter(t => !done.includes(t)).map(nm).filter(Boolean);
+    const msg = `🧽 Limpiezas de ${st.name} · ${weekLabel(S.week)}\n` + (ok.length ? `✅ Terminadas: ${ok.join(', ')}\n` : '')
+      + (pend.length ? `⏳ Pendientes: ${pend.join(', ')}` : '¡Todas terminadas! 🙌');
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  },
   share() { sharePerson(S.person); },
   print() { window.print(); },
   close() { closeSheet(); S.confirmDel = null; },
@@ -1238,7 +1360,7 @@ const ACT = {
     toast('🔒 Saliste del modo administrador' + (LS.get('cvr-draft') ? ' (tu borrador quedó guardado)' : ''));
   },
   discard() { S.undo.push(JSON.stringify(DATA)); DATA = normalize(JSON.parse(PUB_STR)); LS.del('cvr-draft'); S.staleDraft = false; closeSheet(); render(); toast('↩️ Volviste a lo publicado'); },
-  'dismiss-stale'() { S.staleDraft = false; render(); },
+  'dismiss-stale'() { S.staleDraft = false; saveDraft(); render(); toast('Tu borrador se publicará encima de la otra versión'); },
   'copy-prev'() { closeSheet(); copyWeek(iso(addDays(fromIso(S.week), -7)), S.week, false); },
   rotate() { closeSheet(); copyWeek(iso(addDays(fromIso(S.week), -7)), S.week, true); },
   'copy-next'() { closeSheet(); const nx = iso(addDays(fromIso(S.week), 7)); copyWeek(S.week, nx, false); S.week = nx; S.day = null; render(); },
@@ -1260,7 +1382,11 @@ const ACT = {
     const id = el.dataset.id;
     if (S.confirmDel !== id) { S.confirmDel = id; drawSheet(); return; }
     S.confirmDel = null;
-    mutate(() => { DATA.staff = DATA.staff.filter(s => s.id !== id); });
+    mutate(() => {
+      DATA.staff = DATA.staff.filter(s => s.id !== id);
+      // Sus turnos y limpiezas ya no se usan; se quitan para que el archivo no crezca con datos huérfanos
+      Object.values(DATA.weeks).forEach(w => { if (w.days) delete w.days[id]; if (w.clean) delete w.clean[id]; });
+    });
     if (S.person === id) { S.person = null; if (S.view === 'me') S.view = 'team'; render(); }
     drawSheet(); toast('Persona quitada · ↶ para deshacer');
   },
@@ -1270,9 +1396,17 @@ const ACT = {
     mutate(() => DATA.config.shifts.push({ id: 'S' + n, name: 'Turno ' + (DATA.config.shifts.length + 1), short: 'T' + (DATA.config.shifts.length + 1), start: '10:00', end: '17:00', color: PALETTE[(DATA.config.shifts.length + 4) % PALETTE.length] }));
     drawSheet();
   },
-  'sh-del'(el) { mutate(() => { DATA.config.shifts = DATA.config.shifts.filter(s => s.id !== el.dataset.id); }); drawSheet(); toast('Turno eliminado · las celdas que lo usaban quedan sin asignar'); },
+  'sh-del'(el) {
+    const id = el.dataset.id;
+    mutate(() => {
+      DATA.config.shifts = DATA.config.shifts.filter(s => s.id !== id);
+      Object.values(DATA.weeks).forEach(w => Object.values(w.days || {}).forEach(a => a.forEach((e, d) => { if (e && e.s === id) a[d] = null; })));
+    });
+    if (S.brush === id) S.brush = null;
+    drawSheet(); toast('Turno eliminado · las celdas que lo usaban quedan sin asignar');
+  },
   'ct-add'() {
-    const name = $('#ctName').value.trim(), icon = $('#ctIcon').value.trim() || '🧼';
+    const name = $('#ctName').value.trim(), icon = safeIcon($('#ctIcon').value.trim()) || '🧼';
     if (!name) return;
     let id = slug(name), n = 2; while (DATA.config.cleanTasks.some(t => t.id === id)) id = slug(name) + '-' + n++;
     mutate(() => DATA.config.cleanTasks.push({ id, name, icon })); drawSheet();
@@ -1350,6 +1484,15 @@ document.addEventListener('change', e => { const t = e.target.closest('[data-cha
 document.addEventListener('input', e => { const t = e.target.closest('[data-input]'); if (t && INPUT[t.dataset.input]) INPUT[t.dataset.input](t); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && SHEET) closeSheet();
+  // Mantiene el foco del teclado dentro de la hoja abierta
+  if (e.key === 'Tab' && SHEET) {
+    const f = [...$('#sheet').querySelectorAll('button:not([disabled]),a[href],input,textarea,select')].filter(x => x.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (!$('#sheet').contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
   if (e.key === 'Enter' && e.target.id === 'pinInput') ACT['pin-ok']();
   if (e.key === 'Enter' && e.target.id === 'newStaff') ACT['st-add']();
   if ((e.ctrlKey || e.metaKey) && e.key === 'z' && S.admin && !SHEET && !/INPUT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); undo(); }
@@ -1368,6 +1511,7 @@ $('#importFile').addEventListener('change', async e => {
 function setTheme(t) {
   document.documentElement.dataset.theme = t;
   $('#themeBtn').textContent = t === 'dark' ? '🌙' : '☀️';
+  $('#themeBtn').setAttribute('aria-label', t === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
   document.querySelector('meta[name=theme-color]').content = t === 'dark' ? '#121110' : '#f5f1ea';
 }
 setTheme(LS.get('cvr-theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));

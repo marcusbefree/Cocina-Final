@@ -1,6 +1,6 @@
 {
  "version": 2,
- "updated": null,
+ "updated": "2026-10-28T01:28:07.391Z",
  "config": {
   "shifts": [
    { "id": "M", "name": "Matutino", "short": "MAT", "start": "07:00", "end": "14:00", "color": "#f2a33a" },
@@ -25,7 +25,8 @@
    { "id": "congelador", "name": "Congelador", "icon": "❄️" }
   ],
   "maxHours": 48,
-  "minPerDay": 2
+  "minPerDay": 2,
+  "pinHash": "h84d0665c"
  },
  "staff": [
   { "id": "marcos", "name": "Marcos", "color": "#f2a33a" },
