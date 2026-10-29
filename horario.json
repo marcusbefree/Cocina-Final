@@ -1,6 +1,6 @@
 {
  "version": 2,
- "updated": "2026-10-28T02:04:15.207Z",
+ "updated": "2026-10-29T00:40:53.973Z",
  "config": {
   "shifts": [
    {
@@ -421,12 +421,16 @@
       "a": "dish"
      },
      {
-      "s": "M",
+      "s": "C",
+      "start": "08:00",
+      "end": "15:00",
       "a": "cold"
      },
      {
-      "s": "M",
-      "a": "hot"
+      "s": "C",
+      "start": "08:00",
+      "end": "15:00",
+      "a": "cold"
      },
      {
       "s": "I"
@@ -446,22 +450,20 @@
      {
       "s": "C",
       "start": "07:00",
-      "end": "15:00",
+      "end": "14:00",
       "a": "hot",
       "n": "hora pendiente"
      },
      {
       "s": "C",
       "start": "07:00",
-      "end": "15:00",
+      "end": "14:00",
       "a": "hot",
       "n": "hora pendiente"
      },
      {
-      "s": "C",
-      "start": "11:00",
-      "end": "16:00",
-      "a": "dish"
+      "s": "M",
+      "a": "hot"
      },
      {
       "s": "C",
@@ -485,18 +487,21 @@
      },
      {
       "s": "C",
-      "start": "08:00",
+      "start": "07:00",
       "end": "16:00",
       "a": "dish",
       "n": "se paga una hora pendiente"
      },
      null,
      {
-      "s": "M",
-      "a": "hot"
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00",
+      "a": "dish"
      },
      {
-      "s": "D"
+      "s": "M",
+      "a": "hot"
      },
      {
       "s": "M",
@@ -506,14 +511,8 @@
     "cubre": [
      null,
      null,
-     {
-      "s": "M",
-      "a": "dish"
-     },
-     {
-      "s": "M",
-      "a": "cold"
-     },
+     null,
+     null,
      null,
      null,
      null
