@@ -1,6 +1,6 @@
 {
  "version": 2,
- "updated": "2026-10-29T00:40:53.973Z",
+ "updated": "2026-11-05T01:36:00.609Z",
  "config": {
   "shifts": [
    {
@@ -537,6 +537,138 @@
      "tasks": [
       "lineafria",
       "loza"
+     ],
+     "note": ""
+    }
+   },
+   "notes": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ]
+  },
+  "2026-11-05": {
+   "days": {
+    "marcos": [
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "D"
+     },
+     {
+      "s": "M",
+      "a": "cold"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "M",
+      "a": "cold"
+     }
+    ],
+    "gisselle": [
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00",
+      "a": "dish"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "I"
+     },
+     {
+      "s": "M",
+      "a": "cold"
+     },
+     {
+      "s": "D"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     }
+    ],
+    "alexis": [
+     {
+      "s": "M",
+      "a": "cold"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00",
+      "a": "cold"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "D"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00",
+      "a": "dish"
+     }
+    ]
+   },
+   "clean": {
+    "marcos": {
+     "tasks": [
+      "lineafria",
+      "refri"
+     ],
+     "note": ""
+    },
+    "gisselle": {
+     "tasks": [
+      "campana",
+      "filtros"
+     ],
+     "note": ""
+    },
+    "alexis": {
+     "tasks": [
+      "freidora",
+      "loza",
+      "congelador"
      ],
      "note": ""
     }
