@@ -1,6 +1,6 @@
 {
  "version": 2,
- "updated": "2026-11-05T01:36:00.609Z",
+ "updated": "2026-11-11T22:05:41.474Z",
  "config": {
   "shifts": [
    {
@@ -669,6 +669,131 @@
       "freidora",
       "loza",
       "congelador"
+     ],
+     "note": ""
+    }
+   },
+   "notes": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+   ]
+  },
+  "2026-11-12": {
+   "days": {
+    "marcos": [
+     {
+      "s": "D"
+     },
+     {
+      "s": "D"
+     },
+     {
+      "s": "I",
+      "a": "dish"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     }
+    ],
+    "gisselle": [
+     {
+      "s": "C",
+      "start": "09:30",
+      "end": "16:00"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "C",
+      "start": "07:00",
+      "end": "14:30",
+      "a": "cold"
+     },
+     {
+      "s": "C",
+      "start": "09:00",
+      "end": "16:00"
+     },
+     {
+      "s": "D"
+     }
+    ],
+    "alexis": [
+     {
+      "s": "M",
+      "a": "hot"
+     },
+     {
+      "s": "I",
+      "a": "cold"
+     },
+     {
+      "s": "M",
+      "a": "cold"
+     },
+     {
+      "s": "M",
+      "a": "cold"
+     },
+     {
+      "s": "I"
+     },
+     {
+      "s": "D"
+     },
+     {
+      "s": "I"
+     }
+    ]
+   },
+   "clean": {
+    "marcos": {
+     "tasks": [
+      "freidora",
+      "refri"
+     ],
+     "note": ""
+    },
+    "gisselle": {
+     "tasks": [
+      "campana",
+      "filtros"
+     ],
+     "note": ""
+    },
+    "alexis": {
+     "tasks": [
+      "lineafria",
+      "repisas"
      ],
      "note": ""
     }
